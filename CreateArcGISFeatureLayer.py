@@ -18,6 +18,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingAlgorithm,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
+                       QgsProcessingOutputVectorLayer,
                        QgsProcessingParameterString,
                        QgsVectorLayer)
 from qgis import processing
@@ -109,12 +110,9 @@ class ExampleProcessingAlgorithm(QgsProcessingAlgorithm):
                 defaultValue='https://maps.nhvr.gov.au/agsm1/rest/services/vicroads/HVR_AGOL_OpenData/MapServer/54'
             )
         )
-
-        # We add a feature sink in which to store our processed features (this
-        # usually takes the form of a newly created vector layer when the
-        # algorithm is run in QGIS).
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(
+        
+        self.addOutput(
+            QgsProcessingOutputVectorLayer(
                 self.OUTPUT,
                 self.tr('Output layer')
             )
@@ -129,4 +127,5 @@ class ExampleProcessingAlgorithm(QgsProcessingAlgorithm):
         lyr = QgsVectorLayer("crs='EPSG:3857' url='"+url+"'", "RT",  "arcgisfeatureserver")
         feedback.pushInfo("Layer has been created: "+str(lyr))
         feedback.pushInfo("Is the layer valid?: "+str(lyr.isValid()))
-        return {self.OUTPUT: lyr}
+        feedback.pushInfo("The layer feature count is: "+str(lyr.featureCount()))
+        return {self.OUTPUT: lyr.id()}
