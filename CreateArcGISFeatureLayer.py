@@ -13,6 +13,7 @@
 
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessing,
+                       QgsProcessingContext,
                        QgsFeatureSink,
                        QgsProcessingException,
                        QgsProcessingAlgorithm,
@@ -114,9 +115,11 @@ class ExampleProcessingAlgorithm(QgsProcessingAlgorithm):
         self.addOutput(
             QgsProcessingOutputVectorLayer(
                 self.OUTPUT,
-                self.tr('Output layer')
+                self.tr('Output layer'),
+                QgsProcessing.TypeVector
             )
         )
+        
 
     def processAlgorithm(self, parameters, context, feedback):
         """
@@ -128,4 +131,16 @@ class ExampleProcessingAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("Layer has been created: "+str(lyr))
         feedback.pushInfo("Is the layer valid?: "+str(lyr.isValid()))
         feedback.pushInfo("The layer feature count is: "+str(lyr.featureCount()))
+        
+        # Add layer to context
+        context.temporaryLayerStore().addMapLayer(lyr)
+        ##context.addLayerToLoadOnCompletion(
+        ##    lyr.id(),
+        ##    QgsProcessingContext.LayerDetails(
+        ##        self.OUTPUT,
+        ##        context.project(),
+        ##        self.OUTPUT
+        ##    )
+        ##)
+        
         return {self.OUTPUT: lyr.id()}
